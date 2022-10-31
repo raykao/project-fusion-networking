@@ -7,39 +7,22 @@ param adminPublicKey string
 
 targetScope = 'subscription'
 
-resource hubResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
-  name: '${prefix}-rg'
-  location: location
-}
 
-module network 'modules/network.bicep' = {
-  name: 'networkModule'
-  scope: hubResourceGroup
-  params: {
-    prefix: prefix
-    location: hubResourceGroup.location
-  }
-}
-
-module apim 'modules/apim.bicep' = {
-  name: 'apimModule'
-  scope: hubResourceGroup
+module hub 'modules/hub/deploy.bicep' = {
+  name: 'hubModule'
   params: {
     prefix: prefix
     location: location
     adminEmail: adminEmail
     adminName: adminName
-    subnetId: network.outputs.apimSubnetId
-  } 
+    adminPublicKey: adminPublicKey
+  }
 }
 
-module aks 'modules/aks.bicep' = {
-  name: 'aksModule'
-  scope: hubResourceGroup
+module spoke 'modules/spoke/deploy.bicep' = {
+  name: 'spokeModule'
   params: {
     prefix: prefix
     location: location
-    subnetId: network.outputs.aksSubnetId
-    adminPublicKey: adminPublicKey
   }
 }
